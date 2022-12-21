@@ -215,25 +215,25 @@ class StaticPagesTests(TestCase):
 
     # Проверка кэша
     def test_check_cache(self):
-        response = self.guest_client.get(reverse("posts:index"))
+        response = self.guest_client.get(reverse('posts:index'))
         check1 = response.content
         Post.objects.get(id=1).delete()
-        response2 = self.guest_client.get(reverse("posts:index"))
+        response2 = self.guest_client.get(reverse('posts:index'))
         check2 = response2.content
         self.assertEqual(check1, check2)
 
     # Проверка подписок/отписок
     def test_follow(self):
-        response = self.authorized_client.get(reverse("posts:follow_index"))
-        self.assertEqual(len(response.context["page_obj"]), 0)
+        response = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertEqual(len(response.context['page_obj']), 0)
         Follow.objects.get_or_create(user=self.user, author=self.post.author)
-        check1 = self.authorized_client.get(reverse("posts:follow_index"))
-        self.assertEqual(len(check1.context["page_obj"]), 1)
-        self.assertIn(self.post, check1.context["page_obj"])
-        check1 = self.another_authorized_client.get(
-            reverse("posts:follow_index")
-        )
-        self.assertNotIn(self.post, check1.context["page_obj"])
+        check1 = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertEqual(len(check1.context['page_obj']), 1)
+        self.assertIn(self.post, check1.context['page_obj'])
+        another = User.objects.create(username='UserNew')
+        self.authorized_client.force_login(another)
+        check1 = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertNotIn(self.post, check1.context['page_obj'])
         Follow.objects.all().delete()
-        check2 = self.authorized_client.get(reverse("posts:follow_index"))
-        self.assertEqual(len(check2.context["page_obj"]), 0)
+        check2 = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertEqual(len(check2.context['page_obj']), 0)
