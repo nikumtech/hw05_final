@@ -222,7 +222,7 @@ class StaticPagesTests(TestCase):
         check2 = response2.content
         self.assertEqual(check1, check2)
 
-    # Проверка подписок и отписок
+    # Проверка подписок/отписок
     def test_follow(self):
         response = self.authorized_client.get(reverse("posts:follow_index"))
         self.assertEqual(len(response.context["page_obj"]), 0)
