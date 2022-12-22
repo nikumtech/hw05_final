@@ -5,9 +5,9 @@ User = get_user_model()
 
 
 class Group(models.Model):
-    title = models.CharField("group's title", max_length=200)
-    slug = models.SlugField(unique=True)
-    description = models.TextField()
+    title = models.CharField("Название группы", max_length=200)
+    slug = models.SlugField("URL группы", unique=True)
+    description = models.TextField("Описание группы")
 
     def __str__(self):
         return self.title
@@ -15,12 +15,12 @@ class Group(models.Model):
 
 class Post(models.Model):
     text = models.TextField("Текст поста")
-    pub_date = models.DateTimeField(auto_now_add=True)
+    pub_date = models.DateTimeField("Время создания поста", auto_now_add=True)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='posts',
-        verbose_name="Post's author"
+        verbose_name="Автор поста"
     )
     group = models.ForeignKey(
         Group,
@@ -28,7 +28,7 @@ class Post(models.Model):
         null=True,
         on_delete=models.SET_NULL,
         related_name='posts',
-        verbose_name="Группа"
+        verbose_name="Группа поста"
     )
     image = models.ImageField(
         'Картинка',
@@ -49,15 +49,20 @@ class Comment(models.Model):
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='comments'
+        related_name='comments',
+        verbose_name='Пост комментария'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='comments'
+        related_name='comments',
+        verbose_name='Автор комментария'
     )
     text = models.TextField("Текст комментария")
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(
+        "Время создания коммента",
+        auto_now_add=True
+    )
 
     def __str__(self):
         return self.text
@@ -70,10 +75,20 @@ class Follow(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='follower'
+        related_name='follower',
+        verbose_name='Кто подписывается'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='following'
+        related_name='following',
+        verbose_name='На кого подписывается'
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_follow'
+            )
+        ]

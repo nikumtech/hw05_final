@@ -230,10 +230,14 @@ class StaticPagesTests(TestCase):
         check1 = self.authorized_client.get(reverse('posts:follow_index'))
         self.assertEqual(len(check1.context['page_obj']), 1)
         self.assertIn(self.post, check1.context['page_obj'])
+
+    def test_favourite(self):
         another = User.objects.create(username='UserNew')
         self.authorized_client.force_login(another)
         check1 = self.authorized_client.get(reverse('posts:follow_index'))
         self.assertNotIn(self.post, check1.context['page_obj'])
+
+    def test_unfollow(self):
         Follow.objects.all().delete()
         check2 = self.authorized_client.get(reverse('posts:follow_index'))
         self.assertEqual(len(check2.context['page_obj']), 0)

@@ -9,8 +9,8 @@ POSTS_PER_PAGE = 10
 
 
 def index(request):
-    post_list = Post.objects.select_related('group')
-    paginator = Paginator(post_list, POSTS_PER_PAGE)
+    post_group = Post.objects.select_related('group')
+    paginator = Paginator(post_group, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
@@ -110,11 +110,7 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    follower = Follow.objects.filter(user=request.user).values_list(
-        'author_id',
-        flat=True
-    )
-    posts = Post.objects.filter(author_id__in=follower)
+    posts = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(posts, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
